@@ -41,22 +41,38 @@ namespace WebApi.Controllers
         // Update the existing user details 
         //User needs to have an existing id
 
-        public void put(int id,[FromBody]Employee emp)
+        public HttpResponseMessage Put(int id,[FromBody]Employee emp)
         {
             //Connection object
-            using (EmployeeEntities entities = new EmployeeEntities())
+            try
             {
-                //This checks the id in the identity column in database is equal to id passed
-                //The entities.Employees is the Dbset like Ado.net dataset
-                //The passed Id is checked with the Dbset Id  which comes from database
-                //The Dbset is assigned to the variable entity
-                var entity = entities.Employees.FirstOrDefault(e => e.ID == id);
+                using (EmployeeEntities entities = new EmployeeEntities())
+                {
 
-                entity.FirstName = emp.FirstName;
-                entity.Lastname = emp.Lastname;
-                entity.Gender = emp.Gender;
-                entity.Salary = emp.Salary;
-                entities.SaveChanges();
+                    //This checks the id in the identity column in database is equal to id passed
+                    //The entities.Employees is the Dbset like Ado.net dataset
+                    //The passed Id is checked with the Dbset Id  which comes from database
+                    //The Dbset is assigned to the variable entity
+                    var entity = entities.Employees.FirstOrDefault(e => e.ID == id);
+                    if (entity == null)
+                    {
+                        return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Id" + id + "Not Found in the database");
+                    }
+                    else
+                    {
+                        entity.FirstName = emp.FirstName;
+                        entity.Lastname = emp.Lastname;
+                        entity.Gender = emp.Gender;
+                        entity.Salary = emp.Salary;
+                        entities.SaveChanges();
+                        return Request.CreateErrorResponse(HttpStatusCode.OK, entity.ToString());
+                    }
+                }
+            }
+
+            catch(Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
             }
         }
 

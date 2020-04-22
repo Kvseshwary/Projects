@@ -1,0 +1,1 @@
+{"firstname":"surya","lastname":"kiran","gender":"male","salary":100000}
